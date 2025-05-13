@@ -3,9 +3,9 @@
 	"id": "simple-dual-wield",
 	"version": "${version}",
 	"name": "Simple Dual Wield",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Just adds dual wielding to swords and axes; config to come!",
 	"authors": [
-		"Me!"
+		"Evarika"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
