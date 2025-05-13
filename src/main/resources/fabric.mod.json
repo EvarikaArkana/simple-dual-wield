@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "simple-dual-wield",
+	"version": "${version}",
+	"name": "Simple Dual Wield",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/simple-dual-wield/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"eva.dualwield.SimpleDualWield"
+		],
+		"client": [
+			"eva.dualwield.SimpleDualWieldClient"
+		]
+	},
+	"mixins": [
+		"simple-dual-wield.mixins.json",
+		{
+			"config": "simple-dual-wield.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.5",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

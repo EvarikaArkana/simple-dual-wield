@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "eva.dualwield.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"ExampleClientMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
