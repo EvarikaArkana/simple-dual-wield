@@ -3,7 +3,8 @@
 	"package": "eva.dualwield.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"ExampleClientMixin"
+		"DualWieldyMixin",
+		"VarGetterMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
