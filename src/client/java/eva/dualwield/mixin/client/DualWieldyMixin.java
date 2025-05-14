@@ -36,34 +36,33 @@ public class DualWieldyMixin {
 			interactionResult = thisMinecraft.gameMode.interact(thisMinecraft.player, entity, interactionHand);
 		}
 		if (!(interactionResult instanceof InteractionResult.Success success)) {
-//			if (thisMinecraft.rightClickDelay > 0) {} else
+//			if (thisMinecraft.missTime > 0) {} else
 			if (thisMinecraft.player.isHandsBusy()) {
 			} else {
 				ItemStack itemStack = thisMinecraft.player.getItemInHand(InteractionHand.OFF_HAND);
 				if (!itemStack.isItemEnabled(thisMinecraft.level.enabledFeatures())) {
 				} else {
-					thisMinecraft.gameMode.attack(thisMinecraft.player, ((EntityHitResult)thisMinecraft.hitResult).getEntity());
-					}
-				thisMinecraft.player.swing(InteractionHand.MAIN_HAND);
+					thisMinecraft.gameMode.attack(thisMinecraft.player, ((EntityHitResult) thisMinecraft.hitResult).getEntity());
 				}
+				thisMinecraft.player.swing(InteractionHand.OFF_HAND);
 			}
 		}
-
+	}
 
 
 	@Inject(method = "startUseItem",
 			at = @At(value = "CONSTANT",
-			args = "classValue=net.minecraft/world/InteractionResult$Fail",
-			shift = At.Shift.BEFORE))
-	public void offHandMine(CallbackInfo ci, @Local InteractionHand interactionHand){
+					args = "classValue=net.minecraft/world/InteractionResult$Fail",
+					shift = At.Shift.BEFORE))
+	public void offHandMine(CallbackInfo ci, @Local InteractionHand interactionHand) {
 		Minecraft thisMinecraft = (Minecraft) (Object) this;
 		if (interactionHand == OFF_HAND) {
-//			if (thisMinecraft.rightClickDelay > 0) {
-//				return;
-//			} else
-			if (thisMinecraft.player.isHandsBusy()) {} else {
+//			if (thisMinecraft.missTime > 0) {} else
+			if (thisMinecraft.player.isHandsBusy()) {
+			} else {
 				ItemStack itemStack = thisMinecraft.player.getItemInHand(InteractionHand.OFF_HAND);
-				if (!itemStack.isItemEnabled(thisMinecraft.level.enabledFeatures())) {} else {
+				if (!itemStack.isItemEnabled(thisMinecraft.level.enabledFeatures())) {
+				} else {
 					BlockHitResult blockHitResult = (BlockHitResult) thisMinecraft.hitResult;
 					BlockPos blockPos = blockHitResult.getBlockPos();
 					if (!thisMinecraft.level.getBlockState(blockPos).isAir()) {
@@ -71,47 +70,9 @@ public class DualWieldyMixin {
 						if (thisMinecraft.level.getBlockState(blockPos).isAir()) {
 						}
 					}
+					thisMinecraft.player.swing(InteractionHand.OFF_HAND);
 				}
 			}
 		}
 	}
-	
-//	private boolean offAttacker(Minecraft minecraft) {
-//		if (thisMinecraft.rightClickDelay > 0) {
-//			return;
-//		} else if (thisMinecraft.player.isHandsBusy()) {
-//			return;
-//		} else {
-//			ItemStack itemStack = thisMinecraft.player.getItemInHand(InteractionHand.OFF_HAND);
-//			if (!itemStack.isItemEnabled(thisMinecraft.level.enabledFeatures())) {
-//				return;
-//			} else {
-//				boolean bl = false;
-//				switch (thisMinecraft.hitResult.getType()) {
-//					case ENTITY:
-//						thisMinecraft.gameMode.attack(thisMinecraft.player, ((EntityHitResult) thisMinecraft.hitResult).getEntity());
-//						break;
-//					case BLOCK:
-//						BlockHitResult blockHitResult = (BlockHitResult)thisMinecraft.hitResult;
-//						BlockPos blockPos = blockHitResult.getBlockPos();
-//						if (!thisMinecraft.level.getBlockState(blockPos).isAir()) {
-//							 thisMinecraft.gameMode.startDestroyBlock(blockPos, blockHitResult.getDirection());
-//							if (thisMinecraft.level.getBlockState(blockPos).isAir()) {
-//								bl = true;
-//							}
-//							break;
-//						}
-//					case MISS:
-//						if (thisMinecraft.gameMode.hasMissTime()) {
-//							thisMinecraft.rightClickDelay = 10;
-//						}
-//
-//						thisMinecraft.player.resetAttackStrengthTicker();
-//				}
-//
-//				thisMinecraft.player.swing(InteractionHand.OFF_HAND);
-//				return bl;
-//			}
-//		}
-//	}
 }
