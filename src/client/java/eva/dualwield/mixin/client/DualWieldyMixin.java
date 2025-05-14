@@ -19,39 +19,36 @@ import static net.minecraft.world.InteractionHand.*;
 
 @Debug(export = true)
 @Mixin(Minecraft.class)
-public class DualWieldyMixin{
-
+public class DualWieldyMixin {
 
 
 	@Inject(method = "startUseItem",
 			at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/world/InteractionResult;consumesAction()Z",
-			ordinal = 0, shift = At.Shift.BEFORE))
+					target = "Lnet/minecraft/world/InteractionResult;consumesAction()Z",
+					ordinal = 0, shift = At.Shift.BEFORE))
 
 	private void offHandAttack(CallbackInfo ci,
-			@Local InteractionHand interactionHand, @Local Entity entity,
-			@Local EntityHitResult entityHitResult) {
+							   @Local InteractionHand interactionHand, @Local Entity entity,
+							   @Local EntityHitResult entityHitResult) {
 		Minecraft thisMinecraft = (Minecraft) (Object) this;
 		InteractionResult interactionResult = thisMinecraft.gameMode.interactAt(thisMinecraft.player, entity, entityHitResult, interactionHand);
 		if (!interactionResult.consumesAction()) {
 			interactionResult = thisMinecraft.gameMode.interact(thisMinecraft.player, entity, interactionHand);
 		}
 		if (!(interactionResult instanceof InteractionResult.Success success)) {
-			if (thisMinecraft.rightClickDelay > 0) {
-				return;
-			} else if (thisMinecraft.player.isHandsBusy()) {
-				return;
+//			if (thisMinecraft.rightClickDelay > 0) {} else
+			if (thisMinecraft.player.isHandsBusy()) {
 			} else {
 				ItemStack itemStack = thisMinecraft.player.getItemInHand(InteractionHand.OFF_HAND);
 				if (!itemStack.isItemEnabled(thisMinecraft.level.enabledFeatures())) {
-					return;
 				} else {
-					thisMinecraft.gameMode.attack(thisMinecraft.player, ((EntityHitResult) thisMinecraft.hitResult).getEntity());
+					thisMinecraft.gameMode.attack(thisMinecraft.player, ((EntityHitResult)thisMinecraft.hitResult).getEntity());
 					}
+				thisMinecraft.player.swing(InteractionHand.MAIN_HAND);
 				}
 			}
 		}
-	
+
 
 
 	@Inject(method = "startUseItem",
@@ -61,16 +58,12 @@ public class DualWieldyMixin{
 	public void offHandMine(CallbackInfo ci, @Local InteractionHand interactionHand){
 		Minecraft thisMinecraft = (Minecraft) (Object) this;
 		if (interactionHand == OFF_HAND) {
-
-			if (thisMinecraft.rightClickDelay > 0) {
-				return;
-			} else if (thisMinecraft.player.isHandsBusy()) {
-				return;
-			} else {
+//			if (thisMinecraft.rightClickDelay > 0) {
+//				return;
+//			} else
+			if (thisMinecraft.player.isHandsBusy()) {} else {
 				ItemStack itemStack = thisMinecraft.player.getItemInHand(InteractionHand.OFF_HAND);
-				if (!itemStack.isItemEnabled(thisMinecraft.level.enabledFeatures())) {
-					return;
-				} else {
+				if (!itemStack.isItemEnabled(thisMinecraft.level.enabledFeatures())) {} else {
 					BlockHitResult blockHitResult = (BlockHitResult) thisMinecraft.hitResult;
 					BlockPos blockPos = blockHitResult.getBlockPos();
 					if (!thisMinecraft.level.getBlockState(blockPos).isAir()) {
@@ -80,7 +73,6 @@ public class DualWieldyMixin{
 					}
 				}
 			}
-
 		}
 	}
 	
@@ -123,6 +115,3 @@ public class DualWieldyMixin{
 //		}
 //	}
 }
-			
-		
-	
