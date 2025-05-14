@@ -75,7 +75,7 @@ loom {
 		}
 	}
 
-	//accessWidenerPath = file("src/client/resources/dualwield.accesswidener")
+	accessWidenerPath = file("src/client/resources/dualwield.accesswidener")
 
 }
 dependencies {

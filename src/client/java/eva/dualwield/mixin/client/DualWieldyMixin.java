@@ -1,70 +1,128 @@
 package eva.dualwield.mixin.client;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
-//import net.minecraft.world.InteractionResult;
-//import net.minecraft.world.entity.Entity;
-//import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import static eva.dualwield.SimpleDualWieldClient.MOD_ID;
 import static net.minecraft.world.InteractionHand.*;
 
 @Debug(export = true)
 @Mixin(Minecraft.class)
 public class DualWieldyMixin{
 
-	Minecraft thisMinecraft = (Minecraft) (Object) this;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-
-	InteractionHand interactionHand = OFF_HAND;
 
 	@Inject(method = "startUseItem",
 			at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/client/player/LocalPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;",
-			shift = At.Shift.AFTER))
-	private void interactionHandTracker(CallbackInfo ci) {interactionHand = (interactionHand == MAIN_HAND) ? OFF_HAND : MAIN_HAND;}
+			target = "Lnet/minecraft/world/InteractionResult;consumesAction()Z",
+			ordinal = 0, shift = At.Shift.BEFORE))
+
+	private void offHandAttack(CallbackInfo ci,
+			@Local InteractionHand interactionHand, @Local Entity entity,
+			@Local EntityHitResult entityHitResult) {
+		Minecraft thisMinecraft = (Minecraft) (Object) this;
+		InteractionResult interactionResult = thisMinecraft.gameMode.interactAt(thisMinecraft.player, entity, entityHitResult, interactionHand);
+		if (!interactionResult.consumesAction()) {
+			interactionResult = thisMinecraft.gameMode.interact(thisMinecraft.player, entity, interactionHand);
+		}
+		if (!(interactionResult instanceof InteractionResult.Success success)) {
+			if (thisMinecraft.rightClickDelay > 0) {
+				return;
+			} else if (thisMinecraft.player.isHandsBusy()) {
+				return;
+			} else {
+				ItemStack itemStack = thisMinecraft.player.getItemInHand(InteractionHand.OFF_HAND);
+				if (!itemStack.isItemEnabled(thisMinecraft.level.enabledFeatures())) {
+					return;
+				} else {
+					thisMinecraft.gameMode.attack(thisMinecraft.player, ((EntityHitResult) thisMinecraft.hitResult).getEntity());
+					}
+				}
+			}
+		}
+	
+
 
 	@Inject(method = "startUseItem",
-			at = @At(value = "RETURN",
-					ordinal = 5, shift = At.Shift.BY, by = 2))
-
-	private void offHandAttack(CallbackInfo info) {
-		// This code is injected into the start of Minecraft.run()V
+			at = @At(value = "CONSTANT",
+			args = "classValue=net.minecraft/world/InteractionResult$Fail",
+			shift = At.Shift.BEFORE))
+	public void offHandMine(CallbackInfo ci, @Local InteractionHand interactionHand){
+		Minecraft thisMinecraft = (Minecraft) (Object) this;
 		if (interactionHand == OFF_HAND) {
 
-//			EntityHitResult entityHitResult = (EntityHitResult) thisMinecraft.hitResult;
-//			Entity entity = entityHitResult.getEntity();
-//			InteractionResult interactionResult =
-//					thisMinecraft.gameMode.interactAt(thisMinecraft.player, entity,
-//							entityHitResult, interactionHand);
-//			if (!interactionResult.consumesAction()) {
-//				interactionResult = thisMinecraft.gameMode.interact(thisMinecraft.player, entity, interactionHand);
-//			}
+			if (thisMinecraft.rightClickDelay > 0) {
+				return;
+			} else if (thisMinecraft.player.isHandsBusy()) {
+				return;
+			} else {
+				ItemStack itemStack = thisMinecraft.player.getItemInHand(InteractionHand.OFF_HAND);
+				if (!itemStack.isItemEnabled(thisMinecraft.level.enabledFeatures())) {
+					return;
+				} else {
+					BlockHitResult blockHitResult = (BlockHitResult) thisMinecraft.hitResult;
+					BlockPos blockPos = blockHitResult.getBlockPos();
+					if (!thisMinecraft.level.getBlockState(blockPos).isAir()) {
+						thisMinecraft.gameMode.startDestroyBlock(blockPos, blockHitResult.getDirection());
+						if (thisMinecraft.level.getBlockState(blockPos).isAir()) {
+						}
+					}
+				}
+			}
+
+		}
+	}
+	
+//	private boolean offAttacker(Minecraft minecraft) {
+//		if (thisMinecraft.rightClickDelay > 0) {
+//			return;
+//		} else if (thisMinecraft.player.isHandsBusy()) {
+//			return;
+//		} else {
+//			ItemStack itemStack = thisMinecraft.player.getItemInHand(InteractionHand.OFF_HAND);
+//			if (!itemStack.isItemEnabled(thisMinecraft.level.enabledFeatures())) {
+//				return;
+//			} else {
+//				boolean bl = false;
+//				switch (thisMinecraft.hitResult.getType()) {
+//					case ENTITY:
+//						thisMinecraft.gameMode.attack(thisMinecraft.player, ((EntityHitResult) thisMinecraft.hitResult).getEntity());
+//						break;
+//					case BLOCK:
+//						BlockHitResult blockHitResult = (BlockHitResult)thisMinecraft.hitResult;
+//						BlockPos blockPos = blockHitResult.getBlockPos();
+//						if (!thisMinecraft.level.getBlockState(blockPos).isAir()) {
+//							 thisMinecraft.gameMode.startDestroyBlock(blockPos, blockHitResult.getDirection());
+//							if (thisMinecraft.level.getBlockState(blockPos).isAir()) {
+//								bl = true;
+//							}
+//							break;
+//						}
+//					case MISS:
+//						if (thisMinecraft.gameMode.hasMissTime()) {
+//							thisMinecraft.rightClickDelay = 10;
+//						}
 //
-//			if (interactionResult instanceof InteractionResult.Success) {
-//				InteractionResult.Success success = (InteractionResult.Success)interactionResult;
-//				if (success.swingSource() == InteractionResult.SwingSource.CLIENT) {
-//					thisMinecraft.player.swing(interactionHand);
-
+//						thisMinecraft.player.resetAttackStrengthTicker();
 //				}
+//
+//				thisMinecraft.player.swing(InteractionHand.OFF_HAND);
+//				return bl;
 //			}
-		}
-	}
-
-	@Inject(method = "startUseItem",
-			at = @At(value = "RETURN",
-					ordinal = 5, shift = At.Shift.BY, by = 2))
-	public void offHandMine(CallbackInfo ci){
-		if (interactionHand == OFF_HAND) {
-
-		}
-	}
+//		}
+//	}
 }
+			
+		
+	
